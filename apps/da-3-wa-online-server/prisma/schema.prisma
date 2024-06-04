@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Invitation {
+  createdAt DateTime  @default(now())
+  eventDate DateTime?
+  guests    Guest[]
+  id        String    @id @default(cuid())
+  location  String?
+  rsvps     Rsvp[]
+  template  String?
+  title     String?
+  updatedAt DateTime  @updatedAt
+  user      User?     @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model Guest {
+  createdAt    DateTime    @default(now())
+  email        String?
+  firstName    String?
+  id           String      @id @default(cuid())
+  invitation   Invitation? @relation(fields: [invitationId], references: [id])
+  invitationId String?
+  lastName     String?
+  rsvps        Rsvp[]
+  updatedAt    DateTime    @updatedAt
+}
+
+model Rsvp {
+  createdAt    DateTime        @default(now())
+  guest        Guest?          @relation(fields: [guestId], references: [id])
+  guestId      String?
+  id           String          @id @default(cuid())
+  invitation   Invitation?     @relation(fields: [invitationId], references: [id])
+  invitationId String?
+  message      String?
+  status       EnumRsvpStatus?
+  updatedAt    DateTime        @updatedAt
+}
+
+model User {
+  createdAt   DateTime     @default(now())
+  email       String?      @unique
+  firstName   String?
+  id          String       @id @default(cuid())
+  invitations Invitation[]
+  lastName    String?
+  password    String
+  roles       Json
+  updatedAt   DateTime     @updatedAt
+  username    String       @unique
+}
+
+enum EnumRsvpStatus {
+  Option1
+}
